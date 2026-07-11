@@ -109,7 +109,8 @@ class ConsolidationMonitor:
     async def check_consolidation_and_pump(self, symbol: str):
         async with self.semaphore:
             # Нам нужна строго 40-60 минута текущего часа
-            now_time = datetime.utcnow()
+        now_time = datetime.now(datetime.UTC)
+
             if now_time.minute < 40:
                 return
 
