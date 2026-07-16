@@ -367,33 +367,33 @@ class ConsolidationMonitor:
                     
                     if last_closed_candle_time == last_cached_time:
                         # Свеча не изменилась, отдаем ранее вычисленное EMA
-                        ema200 = prev_ema
+                        ema80 = prev_ema
                     elif last_closed_candle_time - last_cached_time > 3600 * 1000:
                         # Пропущено больше одной свечи — полный перерасчет
-                        ema200 = ema(closes, 200)
-                        self.ema_cache[symbol] = (ema200, last_closed_candle_time)
+                        ema80 = ema(closes, 80)
+                        self.ema_cache[symbol] = (ema80, last_closed_candle_time)
                     else:
                         # Закрылась ровно одна новая свеча
                         k = 2 / (200 + 1)
                         new_close = closes[-1]
-                        ema200 = new_close * k + prev_ema * (1 - k)
-                        self.ema_cache[symbol] = (ema200, last_closed_candle_time)
+                        ema80 = new_close * k + prev_ema * (1 - k)
+                        self.ema_cache[symbol] = (ema80, last_closed_candle_time)
                 else:
                     # Первый расчет при инициализации
-                    ema200 = ema(closes, 200)
-                    self.ema_cache[symbol] = (ema200, last_closed_candle_time)
+                    ema80 = ema(closes, 80)
+                    self.ema_cache[symbol] = (ema80, last_closed_candle_time)
                 
                 self.kline_cache[symbol] = {
                     "time": time.monotonic(),
                     "klines": klines,
-                    "ema200": ema200
+                    "ema80": ema80
                 }
                 self.kline_cache.move_to_end(symbol)
                 
                 if len(self.kline_cache) > MAX_KLINE_CACHE_SIZE:
                     self.kline_cache.popitem(last=False)
                     
-                return klines, ema200
+                return klines, ema80
         except Exception as e:
             logger.error(f"Error loading klines for {symbol}: {e}")
             return None, None
@@ -419,14 +419,14 @@ class ConsolidationMonitor:
                 return
 
             try:
-                klines, ema200 = await asyncio.wait_for(
+                klines, ema80 = await asyncio.wait_for(
                     self.load_hourly_klines(symbol),
                     timeout=12
                 )
             except (asyncio.TimeoutError, Exception):
                 return
 
-            if klines is None or ema200 is None:
+            if klines is None or ema80 is None:
                 return
 
             current = klines[-1]
@@ -436,10 +436,10 @@ class ConsolidationMonitor:
             current_close = float(current["close"])
             current_volume = float(current["volume"])
 
-            # 1. Фильтр тренда (EMA200) с логированием
-            if current_close < ema200:
+            # 1. Фильтр тренда (EMA80) с логированием
+            if current_close < ema80:
                 self.increment_stat("filtered_by_trend")
-                logger.debug(f"{symbol} отклонён: цена ниже EMA200 ({current_close:.6f} < {ema200:.6f})")
+                logger.debug(f"{symbol} отклонён: цена ниже EMA80 ({current_close:.6f} < {ema80:.6f})")
                 return
 
             history = klines[-26:-1]
@@ -495,9 +495,9 @@ class ConsolidationMonitor:
 
             period = len(base)
             # 2. Фильтр длины базы
-            if period < 5 or period > 24:
+            if period < 3 or period > 24:
                 self.increment_stat("filtered_by_breakout")
-                logger.debug(f"{symbol} отклонён: длина базы {period} (допустимо 5-24)")
+                logger.debug(f"{symbol} отклонён: длина базы {period} (допустимо 3-24)")
                 return
 
             volumes = [float(x["volume"]) for x in base]
