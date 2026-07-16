@@ -359,14 +359,7 @@ class ConsolidationMonitor:
                 closes = [float(x["close"]) for x in closed]
                 
                 # Время последней полностью ЗАКРЫТОЙ свечи (в миллисекундах)
-                last_closed_candle_time = int(closed[-1]["time"])
-                
-                # Инкрементальное обновление EMA по закрытым свечам
-                if symbol in self.ema_cache:
-                    prev_ema, last_cached_time = self.ema_cache[symbol]
-                    
-                    if last_closed_candle_time == last_cached_time:
-        
+                last_closed_candle_time = int(closed[-1]["time"]
 
     async def update_oi_history_only(self, symbol: str) -> None:
         """Вспомогательный метод для фонового наполнения истории ОИ без задержки сигналов"""
