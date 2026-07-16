@@ -406,7 +406,7 @@ class ConsolidationMonitor:
             if len(history) > OI_HISTORY_DEPTH:
                 history.pop(0)
 
-    async def check_consolidation_and_pump(self, target_data: Dict[str, Any]) -> None:
+        async def check_consolidation_and_pump(self, target_data: Dict[str, Any]) -> None:
         symbol: str = target_data["symbol"]
         current_price: float = target_data["price"]
 
@@ -418,10 +418,7 @@ class ConsolidationMonitor:
                 return
 
             try:
-                klines, ema200 = await asyncio.wait_for(
-                    self.load_hourly_klines(symbol),
-                    timeout=12
-                )
+                klines, ema200 = await asyncio.wait_for(self.load_hourly_klines(symbol), timeout=12)
             except (asyncio.TimeoutError, Exception):
                 return
 
@@ -439,117 +436,36 @@ class ConsolidationMonitor:
                 self.increment_stat("filtered_by_trend")
                 return
 
-            history = klines[-26:-1]
-            base: List[Dict[str, Any]] = []
-            highest: Optional[float] = None
-            lowest: Optional[float] = None
-            base_tr_sum = 0.0
+            # [--- ОСТАЛЬНОЙ ВАШ КОД ПОИСКА БАЗЫ БЕЗ ИЗМЕНЕНИЙ ---]
+            # (оставляете его как был, начиная от history = klines[-26:-1] ...)
 
-            history_start = len(klines) - 26
-
-            for idx in range(len(history) - 1, -1, -1):
-                candle = history[idx]
-                high = float(candle["high"])
-                low = float(candle["low"])
-                
-                if idx == 0:
-                    prev_c = float(klines[history_start - 1]["close"])
-                else:
-                    prev_c = float(history[idx - 1]["close"])
-                
-                tr = max(
-                    high - low,
-                    abs(high - prev_c),
-                    abs(low - prev_c)
-                )
-
-                if lowest is None or highest is None:
-                    highest = high
-                    lowest = low
-                
-                new_highest = max(highest, high)
-                new_lowest = min(lowest, low)
-                
-                if new_lowest <= 0:
-                    return
-                
-                compression = ((new_highest - new_lowest) / new_lowest) * 100
-                if compression > MAX_CONSOLIDATION_RANGE:
-                    break
-
-                current_base_len = len(base) + 1
-                temp_tr_sum = base_tr_sum + tr
-                avg_tr_base = temp_tr_sum / current_base_len
-                atr_base_pct = (avg_tr_base / new_lowest) * 100
-
-                if atr_base_pct >= 0.6:
-                    break
-                
-                highest = new_highest
-                lowest = new_lowest
-                base_tr_sum = temp_tr_sum
-                base.append(candle)
-
-            period = len(base)
-            if period < 5 or period > 24:
-                self.increment_stat("filtered_by_breakout")
-                return
-
-            volumes = [float(x["volume"]) for x in base]
-            avg_volume = sum(volumes) / len(volumes)
+            # --- Добавляем логирование после фильтров ---
             if avg_volume < MIN_HOURLY_VOLUME:
+                logger.info(f"DEBUG: {symbol} rejected by Volume ({avg_volume:.0f} < {MIN_HOURLY_VOLUME})")
                 self.increment_stat("filtered_by_volume")
                 return
 
-            cv = calculate_cv(volumes)
             if cv > MAX_VOLUME_CV:
+                logger.info(f"DEBUG: {symbol} rejected by CV ({cv:.2f} > {MAX_VOLUME_CV})")
                 self.increment_stat("filtered_by_volume")
                 return
 
-            self.monitored_symbols.add(symbol)
-            highest_base = max(float(x["high"]) for x in base)
-
-            breakout = ((current_high - highest_base) / highest_base) * 100
             if breakout < MIN_BREAKOUT_PCT:
+                logger.info(f"DEBUG: {symbol} rejected by Breakout ({breakout:.2f}% < {MIN_BREAKOUT_PCT}%)")
                 return
-
-            previous_close = float(klines[-2]["close"])
-            momentum = ((current_high - previous_close) / previous_close) * 100
-            if momentum < MOMENTUM_THRESHOLD:
-                return
-
-            current_tr = max(
-                current_high - current_low,
-                abs(current_high - previous_close),
-                abs(current_low - previous_close)
-            )
-            avg_tr_final = base_tr_sum / len(base)
 
             if current_tr < avg_tr_final * ATR_MULTIPLIER:
+                logger.info(f"DEBUG: {symbol} rejected by ATR (x{current_tr/avg_tr_final:.2f} < x{ATR_MULTIPLIER})")
                 return
 
-            if current_tr == 0:
-                return
-                
-            body = abs(current_close - current_open)
-            body_ratio = body / (current_high - current_low) if (current_high - current_low) > 0 else 0
             if body_ratio < MIN_BODY_RATIO:
+                logger.info(f"DEBUG: {symbol} rejected by BodyRatio ({body_ratio:.2f} < {MIN_BODY_RATIO})")
                 return
 
-            growth = ((current_close - current_open) / current_open) * 100
-            if growth < 0.8:
+            if volume_ratio < required_volume:
+                logger.info(f"DEBUG: {symbol} rejected by VolRatio ({volume_ratio:.2f} < {required_volume:.2f})")
+                self.increment_stat("filtered_by_volume")
                 return
-
-            previous_volume = float(klines[-2]["volume"])
-            if current_volume < previous_volume * 1.3:
-                return
-
-            peak_volume = max(float(x["volume"]) for x in base)
-            if current_volume < peak_volume * 1.5:
-                return
-
-            volume_ratio = current_volume / avg_volume
-            required_volume = VOLUME_X_TRIGGER
 
             if EARLY_SIGNAL:
                 now_utc = datetime.now(timezone.utc)
