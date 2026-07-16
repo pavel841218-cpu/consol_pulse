@@ -489,9 +489,9 @@ class ConsolidationMonitor:
 
             period = len(base)
             # 2. Фильтр длины базы
-            if period < 3 or period > 24:
+            if period < 3 or period > 200:
                 self.increment_stat("filtered_by_breakout")
-                logger.debug(f"{symbol} отклонён: длина базы {period} (допустимо 3-24)")
+                logger.debug(f"{symbol} отклонён: длина базы {period} (допустимо 3-200)")
                 return
 
             volumes = [float(x["volume"]) for x in base]
