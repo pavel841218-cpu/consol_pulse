@@ -118,18 +118,18 @@ MAX_CONCURRENT_REQUESTS: int = 10
 ALERT_COOLDOWN_SECONDS: float = 4 * 3600  # 4 часа
 BINGX_API_URL: str = "https://open-api.bingx.com/openApi/swap/v2/quote"
 
-MAX_CONSOLIDATION_RANGE: float = 2.5
-MIN_BREAKOUT_PCT: float = 0.15
-MIN_BODY_RATIO: float = 0.60
-MIN_HOURLY_VOLUME: float = 50000
+MAX_CONSOLIDATION_RANGE: float = 10
+MIN_BREAKOUT_PCT: float = 0.05
+MIN_BODY_RATIO: float = 0.30
+MIN_HOURLY_VOLUME: float = 20000
 
-VOLUME_X_TRIGGER: float = 1.7
+VOLUME_X_TRIGGER: float = 1.2
 EARLY_VOLUME_X: float = 1.0
 EARLY_SIGNAL: bool = True
 MAX_VOLUME_CV: float = 0.8
 
-MOMENTUM_THRESHOLD: float = 1.0
-ATR_MULTIPLIER: float = 1.3
+MOMENTUM_THRESHOLD: float = 0.1
+ATR_MULTIPLIER: float = 0.5
 
 USE_OPEN_INTEREST: bool = False
 OI_HISTORY_DEPTH: int = 15
