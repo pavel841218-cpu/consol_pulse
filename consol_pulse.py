@@ -366,37 +366,7 @@ class ConsolidationMonitor:
                     prev_ema, last_cached_time = self.ema_cache[symbol]
                     
                     if last_closed_candle_time == last_cached_time:
-                        # Свеча не изменилась, отдаем ранее вычисленное EMA
-                        ema80 = prev_ema
-                    elif last_closed_candle_time - last_cached_time > 3600 * 1000:
-                        # Пропущено больше одной свечи — полный перерасчет
-                        ema80 = ema(closes, 80)
-                        self.ema_cache[symbol] = (ema80, last_closed_candle_time)
-                    else:
-                        # Закрылась ровно одна новая свеча
-                        k = 2 / (200 + 1)
-                        new_close = closes[-1]
-                        ema80 = new_close * k + prev_ema * (1 - k)
-                        self.ema_cache[symbol] = (ema80, last_closed_candle_time)
-                else:
-                    # Первый расчет при инициализации
-                    ema80 = ema(closes, 80)
-                    self.ema_cache[symbol] = (ema80, last_closed_candle_time)
-                
-                self.kline_cache[symbol] = {
-                    "time": time.monotonic(),
-                    "klines": klines,
-                    "ema80": ema80
-                }
-                self.kline_cache.move_to_end(symbol)
-                
-                if len(self.kline_cache) > MAX_KLINE_CACHE_SIZE:
-                    self.kline_cache.popitem(last=False)
-                    
-                return klines, ema80
-        except Exception as e:
-            logger.error(f"Error loading klines for {symbol}: {e}")
-            return None, None
+        
 
     async def update_oi_history_only(self, symbol: str) -> None:
         """Вспомогательный метод для фонового наполнения истории ОИ без задержки сигналов"""
