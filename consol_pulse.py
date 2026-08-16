@@ -560,113 +560,49 @@ async def get_klines(
 #                  NEW SHELF DETECTOR
 # ============================================================
 
+
 def check_shelf_before_impulse(candles):
-
-    """
-    НОВАЯ ЛОГИКА.
-
-    Не смотрим тупо только на последние 24 свечи.
-
-    Ищем несколько возможных полок в последних
-    8-24 свечах.
-
-    EMA20/40 считаются по ВСЕЙ истории.
-
-    Это позволяет увидеть полку даже тогда,
-    когда после неё уже произошёл импульс.
-    """
-
     if len(candles) < 13:
         return None
 
-    # Последняя H1 может быть ещё незакрытой.
+    # Последняя H1 может быть ещё незакрытой
     closed = candles[:-1]
 
     if len(closed) < MIN_SHELF_CANDLES:
         return None
 
-    closes = [
-        c["close"]
-        for c in closed
-        if c["close"] > 0
-    ]
+    all_closes = [c["close"] for c in closed if c["close"] > 0]
 
-    if len(closes) < 40:
-        # Для нормального EMA40 нужна история.
+    # Для расчета EMA40 нужно хотя бы 40 закрытых свечей во всей истории
+    if len(all_closes) < EMA_SLOW:
         return None
 
-    # ========================================================
     # EMA СЧИТАЕМ ПО ВСЕЙ ИСТОРИИ
-    # ========================================================
-
-    ema20_series = calculate_ema_series(
-        closes,
-        EMA_FAST
-    )
-
-    ema40_series = calculate_ema_series(
-        closes,
-        EMA_SLOW
-    )
+    ema20_series = calculate_ema_series(all_closes, EMA_FAST)
+    ema40_series = calculate_ema_series(all_closes, EMA_SLOW)
 
     candidates = []
-
     total = len(closed)
 
-    # ========================================================
     # ИЩЕМ ПОЛКУ В РАЗНЫХ ОКНАХ
-    # ========================================================
-
-    for window in range(
-        MIN_SHELF_CANDLES,
-        MAX_SHELF_CANDLES + 1
-    ):
-
+    for window in range(MIN_SHELF_CANDLES, MAX_SHELF_CANDLES + 1):
         if window > total:
             continue
 
-        # Идём от самой свежей базы назад
-        for end_idx in range(
-            total - 1,
-            max(window - 2, total - 15),
-            -1
-        ):
-
+        for end_idx in range(total - 1, max(window - 2, total - 15), -1):
             start_idx = end_idx - window + 1
-
             if start_idx < 0:
                 continue
 
-            base = closed[
-                start_idx:end_idx + 1
-            ]
-
+            base = closed[start_idx:end_idx + 1]
             if len(base) < MIN_SHELF_CANDLES:
                 continue
 
-            highs = [
-                c["high"]
-                for c in base
-                if c["high"] > 0
-            ]
+            highs = [c["high"] for c in base if c["high"] > 0]
+            lows = [c["low"] for c in base if c["low"] > 0]
+            base_closes = [c["close"] for c in base if c["close"] > 0]
 
-            lows = [
-                c["low"]
-                for c in base
-                if c["low"] > 0
-            ]
-
-            base_closes = [
-                c["close"]
-                for c in base
-                if c["close"] > 0
-            ]
-
-            if (
-                not highs
-                or not lows
-                or not base_closes
-            ):
+            if not highs or not lows or not base_closes:
                 continue
 
             shelf_high = max(highs)
@@ -675,45 +611,24 @@ def check_shelf_before_impulse(candles):
             if shelf_low <= 0:
                 continue
 
-            # =================================================
             # 1. ШИРИНА ПО ТЕНЯМ
-            # =================================================
-
-            wick_width = (
-                (shelf_high - shelf_low)
-                / shelf_low
-                * 100
-            )
-
+            wick_width = ((shelf_high - shelf_low) / shelf_low) * 100
             if wick_width > MAX_SHELF_WICK_WIDTH_PCT:
                 continue
 
-            # =================================================
             # 2. ШИРИНА ПО ЗАКРЫТИЯМ
-            # =================================================
-
             close_high = max(base_closes)
             close_low = min(base_closes)
 
             if close_low <= 0:
                 continue
 
-            body_width = (
-                (close_high - close_low)
-                / close_low
-                * 100
-            )
-
+            body_width = ((close_high - close_low) / close_low) * 100
             if body_width > MAX_SHELF_WIDTH_PCT:
                 continue
 
-            # =================================================
             # 3. EMA НА КОНЦЕ ПОЛКИ
-            # =================================================
-
-            if end_idx >= len(
-                ema20_series
-            ):
+            if end_idx >= len(ema20_series):
                 continue
 
             ema20 = ema20_series[end_idx]
@@ -722,118 +637,51 @@ def check_shelf_before_impulse(candles):
             if ema20 <= 0 or ema40 <= 0:
                 continue
 
-            ema_spread = (
-                abs(ema20 - ema40)
-                / ema40
-                * 100
-            )
-
+            ema_spread = (abs(ema20 - ema40) / ema40) * 100
             if ema_spread > EMA_MAX_SPREAD_PCT:
                 continue
 
-            # =================================================
             # 4. ПРОВЕРЯЕМ СТАБИЛЬНОСТЬ
-            # =================================================
-
-            # Не допускаем, чтобы один огромный candle
-            # формировал всю полку.
-
             candle_ranges = []
-
             for c in base:
-
                 if c["low"] <= 0:
                     continue
-
-                r = (
-                    (c["high"] - c["low"])
-                    / c["low"]
-                    * 100
-                )
-
+                r = ((c["high"] - c["low"]) / c["low"]) * 100
                 candle_ranges.append(r)
 
             if not candle_ranges:
                 continue
 
-            # Большинство свечей должны быть спокойными.
-            quiet_count = sum(
-                1
-                for r in candle_ranges
-                if r <= 3.0
-            )
-
-            quiet_ratio = (
-                quiet_count
-                / len(candle_ranges)
-            )
+            quiet_count = sum(1 for r in candle_ranges if r <= 3.0)
+            quiet_ratio = quiet_count / len(candle_ranges)
 
             if quiet_ratio < 0.60:
                 continue
 
-            # =================================================
-            # 5. ПРОВЕРКА ЧТО ПОСЛЕ ПОЛКИ БЫЛ ВЫХОД
-            # =================================================
-
+            # 5. ПРОВЕРКА ВЫХОДА ПОСЛЕ ПОЛКИ
             breakout_bonus = 0
-
             next_idx = end_idx + 1
 
             if next_idx < total:
-
                 next_candle = closed[next_idx]
-
                 next_high = next_candle["high"]
                 next_low = next_candle["low"]
 
                 if next_high > shelf_high:
-
-                    move_up = (
-                        (next_high - shelf_high)
-                        / shelf_high
-                        * 100
-                    )
-
+                    move_up = ((next_high - shelf_high) / shelf_high) * 100
                     if move_up >= 0.5:
                         breakout_bonus = move_up
-
                 elif next_low < shelf_low:
-
-                    move_down = (
-                        (shelf_low - next_low)
-                        / shelf_low
-                        * 100
-                    )
-
+                    move_down = ((shelf_low - next_low) / shelf_low) * 100
                     if move_down >= 0.5:
                         breakout_bonus = move_down
 
-            # =================================================
             # ОЦЕНКА КАНДИДАТА
-            # =================================================
-
             score = 0
-
-            # Чем длиннее полка — тем лучше
             score += min(window, 16) * 0.20
-
-            # Чем уже тело — тем лучше
-            score += max(
-                0,
-                4.0 - body_width
-            )
-
-            # Сжатые EMA
-            score += max(
-                0,
-                4.0 - ema_spread
-            )
-
-            # Стабильность
+            score += max(0, 4.0 - body_width)
+            score += max(0, 4.0 - ema_spread)
             score += quiet_ratio * 3
-
-            # Если после полки уже был импульс —
-            # это очень сильный кандидат.
             score += breakout_bonus * 2
 
             candidates.append({
@@ -852,12 +700,7 @@ def check_shelf_before_impulse(candles):
     if not candidates:
         return None
 
-    # Берём лучший кандидат
-    candidates.sort(
-        key=lambda x: x["score"],
-        reverse=True
-    )
-
+    candidates.sort(key=lambda x: x["score"], reverse=True)
     return candidates[0]
 
 
