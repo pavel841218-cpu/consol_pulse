@@ -902,26 +902,37 @@ async def main_loop():
                 await full_market_scan(session)
                 last_full_scan = time.time()
 
+                    # Пробуем получить тикеры с повторными попытками
+        tickers = await get_market_tickers(session)
+        
+        retry_count = 0
+        while not tickers and retry_count < 3:
+            retry_count += 1
+            logging.warning(f"⚠️ Тикеры не получены. Повторная попытка {retry_count}/3 через 5 сек...")
+            await asyncio.sleep(5)
             tickers = await get_market_tickers(session)
 
-            if tickers:
-                ACTIVE_SYMBOLS = {item[0] for item in tickers}
-                watched = await watch_shelves(session, tickers)
-                sec_to_full = max(0, FULL_SCAN_INTERVAL - (time.time() - last_full_scan))
+        if tickers:
+            ACTIVE_SYMBOLS = {item[0] for item in tickers}
+            watched = await watch_shelves(session, tickers)
+            sec_to_full = max(0, FULL_SCAN_INTERVAL - ...)
 
-                logging.info(
-                    "📊 WATCH SCAN | рынок=%d | полок=%d | WATCH=%d | время=%.1fs | след. полный скан через %.1f мин",
-                    len(tickers),
-                    len(SHELVES),
-                    watched,
-                    time.time() - started,
-                    sec_to_full / 60
-                )
+            logging.info(
+                "📊 WATCH SCAN | рынок=%d | полок=%d | WATCH=%d | время=%.1fs | след. полный скан через %.1f мин",
+                len(tickers),
+                len(SHELVES),
+                watched,
+                time.time() - started,
+                sec_to_full / 60
+            )
+        else:
+            logging.error("❌ Не удалось получить тикеры после 3 попыток. Пропуск итерации.")
 
-            cleanup_shelves()
+        cleanup_shelves()
 
-            sleep_time = max(1, WATCH_INTERVAL - (time.time() - started))
-            await asyncio.sleep(sleep_time)
+        sleep_time = max(1, WATCH_INTERVAL - (time.time() - started))
+        await asyncio.sleep(sleep_time)
+
 
 
 # ============================================================
