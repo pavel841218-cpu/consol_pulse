@@ -26,23 +26,23 @@ PORT = int(os.environ.get("PORT", 10000))
 FULL_SCAN_INTERVAL = 20 * 60      # полный поиск новых полок каждые 20 минут
 WATCH_INTERVAL = 30               # мониторинг найденных полок каждые 30 секунд
 SHELF_TTL = 24 * 60 * 60          # обычная полка живёт 24 часа
-TRIGGERED_TTL = 4 * 60 * 60       # после сигнала держим ещё 4 часа
+TRIGGERED_TTL = 30 * 60       # после сигнала держим ещё 4 часа
 
 
 # ============================================================
 #                    IMPULSE LEVELS
 # ============================================================
 
-EARLY_TRIGGER_PCT = 0.5
-CONFIRM_TRIGGER_PCT = 1.5
-PUMP_TRIGGER_PCT = 2.5
+EARLY_TRIGGER_PCT = 1.0
+CONFIRM_TRIGGER_PCT = 2.0
+PUMP_TRIGGER_PCT = 4.0
 
 
 # ============================================================
 #                    MARKET FILTERS
 # ============================================================
 
-MIN_24H_VOLUME_USDT = 800_000
+MIN_24H_VOLUME_USDT = 300_000
 MIN_OPEN_INTEREST_USDT = 1_000_000
 
 
@@ -53,7 +53,7 @@ MIN_OPEN_INTEREST_USDT = 1_000_000
 MIN_SHELF_CANDLES = 6             # Минимум 6 часов консолидации
 MAX_SHELF_CANDLES = 36            # Расширено до 36 часов
 
-MAX_SHELF_WIDTH_PCT = 10.0        # тело полки не шире 10%
+MAX_SHELF_WIDTH_PCT = 3.5       # тело полки не шире 10%
 MAX_SHELF_WICK_WIDTH_PCT = 14.0   # с тенями не шире 14%
 
 EMA_FAST = 20
@@ -69,8 +69,8 @@ SHORT_RVOL_INTERVAL = "5m"
 SHORT_RVOL_LOOKBACK = 12
 SHORT_RVOL_RECENT_COUNT = 3
 
-MIN_SHORT_RVOL = 0.50
-MIN_HOURLY_RVOL = 0.80
+MIN_SHORT_RVOL = 1.0
+MIN_HOURLY_RVOL = 2.0
 
 
 # ============================================================
