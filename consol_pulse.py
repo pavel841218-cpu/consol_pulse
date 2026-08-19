@@ -42,8 +42,8 @@ PUMP_TRIGGER_PCT = 4.0
 #                    MARKET FILTERS
 # ============================================================
 
-MIN_24H_VOLUME_USDT = 300_000
-MIN_OPEN_INTEREST_USDT = 1_000_000
+MIN_24H_VOLUME_USDT = 3_000_000
+MIN_OPEN_INTEREST_USDT = 5_000_000
 
 
 # ============================================================
@@ -58,7 +58,7 @@ MAX_SHELF_WICK_WIDTH_PCT = 12.0   # с тенями не шире 12%
 
 EMA_FAST = 20
 EMA_SLOW = 40
-EMA_MAX_SPREAD_PCT = 8.0          # Допустимый спред EMA20/40
+EMA_MAX_SPREAD_PCT = 3.0          # Допустимый спред EMA20/40
 
 
 # ============================================================
@@ -69,7 +69,7 @@ SHORT_RVOL_INTERVAL = "5m"
 SHORT_RVOL_LOOKBACK = 12
 SHORT_RVOL_RECENT_COUNT = 3
 
-MIN_SHORT_RVOL = 1.0
+MIN_SHORT_RVOL = 1.5
 MIN_HOURLY_RVOL = 1.8
 
 
