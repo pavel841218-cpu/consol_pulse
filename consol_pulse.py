@@ -42,8 +42,8 @@ PUMP_TRIGGER_PCT = 4.0
 #                    MARKET FILTERS
 # ============================================================
 
-MIN_24H_VOLUME_USDT = 3_000_000
-MIN_OPEN_INTEREST_USDT = 5_000_000
+MIN_24H_VOLUME_USDT = 2_000_000
+MIN_OPEN_INTEREST_USDT = 1_500_000
 
 
 # ============================================================
