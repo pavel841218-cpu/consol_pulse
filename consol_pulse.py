@@ -483,7 +483,7 @@ async def send_startup_message(session):
 
 
 # ============================================================
-#            SHELF DETECTOR (СТРОГАЯ ЗАЩИТА ОТ ПИЛЫ)
+#            FIXED SHELF DETECTOR (ACCURATE BODY & WICK)
 # ============================================================
 
 def check_shelf_before_impulse(candles):
@@ -526,17 +526,7 @@ def check_shelf_before_impulse(candles):
             if not highs or not lows or not base_closes or not base_opens:
                 continue
 
-            # 1. Проверка тела полки по MAX_SHELF_WIDTH_PCT (<= 2.5%)
-            close_max = max(max(base_closes), max(base_opens))
-            close_min = min(min(base_closes), min(base_opens))
-            if close_min <= 0:
-                continue
-
-            body_width = ((close_max - close_min) / close_min) * 100
-            if body_width > MAX_SHELF_WIDTH_PCT:
-                continue
-
-            # 2. Проверка теней по MAX_SHELF_WICK_WIDTH_PCT (<= 3.0%)
+            # 1. Проверка теней (полный размах high/low)
             shelf_high = max(highs)
             shelf_low = min(lows)
             if shelf_low <= 0:
@@ -544,6 +534,16 @@ def check_shelf_before_impulse(candles):
 
             wick_width = ((shelf_high - shelf_low) / shelf_low) * 100
             if wick_width > MAX_SHELF_WICK_WIDTH_PCT:
+                continue
+
+            # 2. Проверка тела (максимальный уровень закрытия/открытия)
+            close_max = max(max(base_closes), max(base_opens))
+            close_min = min(min(base_closes), min(base_opens))
+            if close_min <= 0:
+                continue
+
+            body_width = ((close_max - close_min) / close_min) * 100
+            if body_width > MAX_SHELF_WIDTH_PCT:
                 continue
 
             # 3. Наклон полки не более 1.0%
@@ -601,6 +601,7 @@ def check_shelf_before_impulse(candles):
 
     candidates.sort(key=lambda x: x["score"], reverse=True)
     return candidates[0]
+
 
 
 # ============================================================
