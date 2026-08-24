@@ -38,7 +38,7 @@ TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
 TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID", "")
 
 # Публичный узел Binance, устойчивый к блокировкам 418 на Render
-BASE_URL = "https://fapi1.binance.com"
+BASE_URL = "https://fapi2.binance.com"
 
 # Ценовая ниша
 MIN_PRICE_TIER = 0.0001
