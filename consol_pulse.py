@@ -48,7 +48,7 @@ MIN_PRICE_TIER = 0.0001
 MAX_PRICE_TIER = 1.0000
 
 # Базовый фильтр объёма (чтобы не тянуть все монеты)
-BASE_MIN_24H_VOLUME = 10_000
+BASE_MIN_24H_VOLUME = 100_000
 
 # Анти-зомби
 MAX_DROP_FROM_30D_HIGH_PCT = 85.0
