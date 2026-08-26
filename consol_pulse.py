@@ -20,7 +20,7 @@ BINGX_BASE = "https://open-api.bingx.com"
 BASE_CANDLES_COUNT = 4          # Размер базы (4 закрытые свечи 1H = 4 часа)
 MAX_SHELF_WIDTH_PCT = 6.0       # Макс. ширина полки (до 6% разброса)
 MIN_BREAKOUT_PCT = 1.5          # Пробой верха базы на +1.5% и выше
-MIN_24H_VOLUME_USDT = 100_000   # Мин. ликвидность ($100k для скорости)
+MIN_24H_VOLUME_USDT = 1_500_000   # Мин. ликвидность ($1.5M для скорости)
 CHECK_INTERVAL_SECONDS = 30     # Проверка каждые 30 секунд
 ALERT_COOLDOWN_SECONDS = 3 * 3600 # 3 часа кулдаун на монету
 
