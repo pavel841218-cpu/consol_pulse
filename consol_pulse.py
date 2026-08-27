@@ -17,8 +17,8 @@ PORT = int(os.environ.get("PORT", 10000))
 BINGX_BASE = "https://open-api.bingx.com"
 
 # --- Настройки стратегии ---
-BASE_CANDLES_COUNT = 4          # Размер базы (4 закрытые свечи 1H = 4 часа)
-MAX_SHELF_WIDTH_PCT = 6.0       # Макс. ширина полки (до 6% разброса)
+BASE_CANDLES_COUNT = 6          # Размер базы (6 закрытые свечи 1H = 6 часов)
+MAX_SHELF_WIDTH_PCT = 3.5       # Макс. ширина полки (до 3.5% разброса)
 MIN_BREAKOUT_PCT = 1.5          # Пробой верха базы на +1.5% и выше
 MIN_24H_VOLUME_USDT = 1_500_000   # Мин. ликвидность ($1.5M для скорости)
 CHECK_INTERVAL_SECONDS = 30     # Проверка каждые 30 секунд
