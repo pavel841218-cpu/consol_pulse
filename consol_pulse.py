@@ -26,9 +26,9 @@ CHECK_INTERVAL_SECONDS = 20
 # Настройки полки (ПАРТИЗАН SQUEEZE)
 SHELF_MIN_CANDLES = 6
 SHELF_MAX_CANDLES = 18
-MAX_SHELF_WIDTH_PCT = 2.5       # Жесткое зажатие (было 4.5%)
+MAX_SHELF_WIDTH_PCT = 3.2       # Жесткое зажатие (было 4.5%)
 EMA_SHELF_TOLERANCE_PCT = 0.8   # Допуск цены около EMA
-MAX_EMA_CLUSTER_PCT = 1.5       # EMA20/40/80 должны сливаться в нитку
+MAX_EMA_CLUSTER_PCT = 2.0       # EMA20/40/80 должны сливаться в нитку
 
 # Настройки пробоя
 MIN_BREAKOUT_PCT = 0.8         # Минимальный вылет цены
@@ -178,7 +178,7 @@ def analyze_shelf_and_breakout(candles):
         ema40_pct = (in_ema40.sum() / length) * 100
         ema80_pct = (in_ema80.sum() / length) * 100
 
-        if ema20_pct < 80 or ema40_pct < 80 or ema80_pct < 80:
+        if ema20_pct < 70 or ema40_pct < 70 or ema80_pct < 70:
             continue
 
         # Проверка сжатия кластера EMA
