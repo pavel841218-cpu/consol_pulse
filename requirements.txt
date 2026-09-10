@@ -2,3 +2,4 @@ aiohttp
 pandas
 flask
 aiogram
+requests
