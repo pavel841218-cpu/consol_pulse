@@ -1,5 +1,2 @@
-aiohttp
-pandas
-flask
-aiogram
-requests
+aiohttp>=3.9.0
+aiogram>=3.0.0
