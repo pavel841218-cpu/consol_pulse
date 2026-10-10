@@ -38,7 +38,7 @@ MIN_LISTING_AGE_DAYS = float(os.environ.get("MIN_LISTING_AGE_DAYS", "14"))
 SHELF_LOOKBACK_CANDLES = int(os.environ.get("SHELF_LOOKBACK_CANDLES", "6"))  # 6 * 15m = 1.5h
 SHELF_HIST_LOOKBACK = int(os.environ.get("SHELF_HIST_LOOKBACK", "12"))
 MAX_SHELF_RANGE_PCT = float(os.environ.get("MAX_SHELF_RANGE_PCT", "2.5"))
-MIN_CUMULATIVE_RVOL = float(os.environ.get("MIN_CUMULATIVE_RVOL", "4.0"))   # Было 1.8 — отсекаем слабый объём вроде UBUSDT/FARTCOIN[span_11](start_span)[span_11](end_span)
+MIN_CUMULATIVE_RVOL = float(os.environ.get("MIN_CUMULATIVE_RVOL", "3.0"))   # Было 1.8 — отсекаем слабый объём вроде UBUSDT/FARTCOIN[span_11](start_span)[span_11](end_span)
 MIN_GREEN_BUY_RATIO = float(os.environ.get("MIN_GREEN_BUY_RATIO", "0.55"))
 MIN_SHELF_POSITION = float(os.environ.get("MIN_SHELF_POSITION", "0.65"))  # Было 0.50 — берём только верхнюю треть полки перед самым пробоем[span_12](start_span)[span_12](end_span)[span_13](start_span)[span_13](end_span)
 CUMULATIVE_COOLDOWN_SEC = int(os.environ.get("CUMULATIVE_COOLDOWN_SEC", str(3 * 3600)))
