@@ -11,7 +11,7 @@ from collections import defaultdict
 # ============================================================
 # IMPULSE HUNTER v13.7 — TEST MODE
 # Fixes:
-#   - IMPULSE_MIN_MOVE_PCT: 0.5% → 0.2%
+#   - IMPULSE_MIN_MOVE_PCT: 0.5% → 0.1%
 #   - Логирование RVOL-PASS (видно что между rvol и move)
 #   - Раздельный счётчик rejected_volume_usd
 # ============================================================
@@ -22,20 +22,20 @@ PORT = int(os.environ.get("PORT", "10000"))
 
 # --- Периодика ---
 SCAN_INTERVAL_SEC = int(os.environ.get("SCAN_INTERVAL_SEC", "60"))
-CHECK_ROTATION_SEC = int(os.environ.get("CHECK_ROTATION_SEC", "240"))
+CHECK_ROTATION_SEC = int(os.environ.get("CHECK_ROTATION_SEC", "120"))
 UNIVERSE_REFRESH_SEC = int(os.environ.get("UNIVERSE_REFRESH_SEC", "1800"))
 OI_WARMUP_SEC = int(os.environ.get("OI_WARMUP_SEC", "600"))
 
 MAX_UNIVERSE_SYMBOLS = int(os.environ.get("MAX_UNIVERSE_SYMBOLS", "60"))
 MAX_SCAN_CANDIDATES = int(os.environ.get("MAX_SCAN_CANDIDATES", "60"))
 
-MIN_24H_VOLUME_USDT = float(os.environ.get("MIN_24H_VOLUME_USDT", "500000"))
+MIN_24H_VOLUME_USDT = float(os.environ.get("MIN_24H_VOLUME_USDT", "150000"))
 MIN_PRICE_USDT = float(os.environ.get("MIN_PRICE_USDT", "0.0001"))
 MAX_PRICE_USDT = float(os.environ.get("MAX_PRICE_USDT", "10.0"))
 
 # === Триггер импульса (RVOL → MOVE → CLOSE) ===
 IMPULSE_MIN_RVOL = float(os.environ.get("IMPULSE_MIN_RVOL", "2.2"))
-IMPULSE_MIN_MOVE_PCT = float(os.environ.get("IMPULSE_MIN_MOVE_PCT", "0.2"))
+IMPULSE_MIN_MOVE_PCT = float(os.environ.get("IMPULSE_MIN_MOVE_PCT", "0.1"))
 IMPULSE_MAX_MOVE_PCT = float(os.environ.get("IMPULSE_MAX_MOVE_PCT", "15.0"))
 IMPULSE_MIN_CLOSE_POS = float(os.environ.get("IMPULSE_MIN_CLOSE_POS", "0.55"))
 IMPULSE_MIN_VOLUME_USD = float(os.environ.get("IMPULSE_MIN_VOLUME_USD", "3000"))
