@@ -11,7 +11,7 @@ from collections import defaultdict
 # ============================================================
 # IMPULSE HUNTER v13.7 — TEST MODE
 # Fixes:
-#   - IMPULSE_MIN_MOVE_PCT: 0.5% → 0.1%
+#   - IMPULSE_MIN_MOVE_PCT: 0.5% → 0.7%
 #   - Логирование RVOL-PASS (видно что между rvol и move)
 #   - Раздельный счётчик rejected_volume_usd
 # ============================================================
@@ -34,11 +34,11 @@ MIN_PRICE_USDT = float(os.environ.get("MIN_PRICE_USDT", "0.0001"))
 MAX_PRICE_USDT = float(os.environ.get("MAX_PRICE_USDT", "10.0"))
 
 # === Триггер импульса (RVOL → MOVE → CLOSE) ===
-IMPULSE_MIN_RVOL = float(os.environ.get("IMPULSE_MIN_RVOL", "2.2"))
-IMPULSE_MIN_MOVE_PCT = float(os.environ.get("IMPULSE_MIN_MOVE_PCT", "0.1"))
+IMPULSE_MIN_RVOL = float(os.environ.get("IMPULSE_MIN_RVOL", "6.0"))
+IMPULSE_MIN_MOVE_PCT = float(os.environ.get("IMPULSE_MIN_MOVE_PCT", "0.7"))
 IMPULSE_MAX_MOVE_PCT = float(os.environ.get("IMPULSE_MAX_MOVE_PCT", "15.0"))
-IMPULSE_MIN_CLOSE_POS = float(os.environ.get("IMPULSE_MIN_CLOSE_POS", "0.55"))
-IMPULSE_MIN_VOLUME_USD = float(os.environ.get("IMPULSE_MIN_VOLUME_USD", "3000"))
+IMPULSE_MIN_CLOSE_POS = float(os.environ.get("IMPULSE_MIN_CLOSE_POS", "0.65"))
+IMPULSE_MIN_VOLUME_USD = float(os.environ.get("IMPULSE_MIN_VOLUME_USD", "25000"))
 
 # === Защита от разворота на текущей свече ===
 REVERSAL_CURRENT_MOVE_PCT = float(os.environ.get("REVERSAL_CURRENT_MOVE_PCT", "-0.5"))
